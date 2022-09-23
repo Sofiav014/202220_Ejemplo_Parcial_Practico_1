@@ -25,11 +25,10 @@ import uk.co.jemos.podam.api.PodamFactoryImpl;
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
 @Transactional
-@Import(MedicoService.class)
-class MedicoServiceTest {
-
+@Import(EspecialidadService.class)
+class EspecialidadServiceTest {
     @Autowired
-    private MedicoService medicoService;
+    private EspecialidadService especialidadService;
 
     @Autowired
     private TestEntityManager entityManager;
@@ -61,47 +60,45 @@ class MedicoServiceTest {
      * Inserta los datos iniciales para el correcto funcionamiento de las pruebas.
      */
     private void insertData() {
+
         for (int i = 0; i < 3; i++) {
-            MedicoEntity medicoEntity = factory.manufacturePojo(MedicoEntity.class);
-            entityManager.persist(medicoEntity);
-            medicoList.add(medicoEntity);
+            EspecialidadEntity especialidadEntity = factory.manufacturePojo(EspecialidadEntity.class);
+            entityManager.persist(especialidadEntity);
+            especialidadList.add(especialidadEntity);
         }
 
-        MedicoEntity medicoEntity = medicoList.get(2);
-        EspecialidadEntity especialidadEntity = factory.manufacturePojo(EspecialidadEntity.class);
-        especialidadEntity.getMedicos().add(medicoEntity);
-        entityManager.persist(especialidadEntity);
-
-        medicoEntity.getEspecialidades().add(especialidadEntity);
+        MedicoEntity medicoEntity = factory.manufacturePojo(MedicoEntity.class);
+        entityManager.persist(medicoEntity);
+        medicoEntity.getEspecialidades().add(especialidadList.get(0));
+        especialidadList.get(0).getMedicos().add(medicoEntity);
     }
 
     /**
-     * Prueba para crear un medico
+     * Prueba para crear una especialidad.
      */
     @Test
-    void testCreateMedico() throws IllegalOperationException {
-        MedicoEntity newMedicoEntity = factory.manufacturePojo(MedicoEntity.class);
-        newMedicoEntity.setRegitroMedico("RM123");
-        MedicoEntity result = medicoService.createMedico(newMedicoEntity);
+    void testCreateEspecialidad() throws IllegalOperationException {
+        EspecialidadEntity newEspecialidadEntity = factory.manufacturePojo(EspecialidadEntity.class);
+        newEspecialidadEntity.setDescripcion("0123456789");
+        EspecialidadEntity result = especialidadService.createEspecialidad(newEspecialidadEntity);
         assertNotNull(result);
-        MedicoEntity entity = entityManager.find(MedicoEntity.class, result.getId());
+        EspecialidadEntity entity = entityManager.find(EspecialidadEntity.class, result.getId());
         assertNotNull(entity);
-        assertEquals(newMedicoEntity.getId(), entity.getId());
-        assertEquals(newMedicoEntity.getNombre(), entity.getNombre());
-        assertEquals(newMedicoEntity.getApellido(), entity.getApellido());
-        assertEquals(newMedicoEntity.getRegitroMedico(), entity.getRegitroMedico());
-        assertEquals(newMedicoEntity.getEspecialidades(), entity.getEspecialidades());
+        assertEquals(newEspecialidadEntity.getId(), entity.getId());
+        assertEquals(newEspecialidadEntity.getNombre(), entity.getNombre());
+        assertEquals(newEspecialidadEntity.getDescripcion(), entity.getDescripcion());
+        assertEquals(newEspecialidadEntity.getMedicos(), entity.getMedicos());
     }
 
     /**
-     * Prueba para crear un medico con registro medico invalido
+     * Prueba para crear una especialidad con descripcion menor a 10 caracteres.
      */
     @Test
-    void testCreateInvalidMedico() throws IllegalOperationException {
+    void testCreateInvalidEspecialidad() throws IllegalOperationException {
         assertThrows(IllegalOperationException.class, ()->{
-            MedicoEntity newEntity = factory.manufacturePojo(MedicoEntity.class);
-            newEntity.setRegitroMedico("1234");
-            medicoService.createMedico(newEntity);
+            EspecialidadEntity newEntity = factory.manufacturePojo(EspecialidadEntity.class);
+            newEntity.setDescripcion("sopa");
+            especialidadService.createEspecialidad(newEntity);
         });
     }
 }
