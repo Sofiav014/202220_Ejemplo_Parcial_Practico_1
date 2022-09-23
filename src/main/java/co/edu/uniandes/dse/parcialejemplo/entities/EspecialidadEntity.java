@@ -19,6 +19,6 @@ public class EspecialidadEntity extends BaseEntity {
 
     @PodamExclude
     @ManyToMany
-    private List<EspecialidadEntity> medicos = new ArrayList<>();
+    private List<MedicoEntity> medicos = new ArrayList<>();
 
 }
